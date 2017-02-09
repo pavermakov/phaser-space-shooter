@@ -6,11 +6,9 @@ SpaceHipster.Enemy = function(game, x, y, key, health, enemyBullets) {
 
   this.game.physics.arcade.enable(this);
   this.anchor.setTo(0.5);
-  this.scale.setTo(0.2);
   this.health = health;
   this.enemyBullets = enemyBullets;
-
-  this.animations.add('damage', [1, 2, 3, 2, 1, 0], 35, false);
+  this.animations.add('damage', [1, 2, 3, 2, 1, 0], 30, false);
 };
 
 SpaceHipster.Enemy.prototype = Object.create(Phaser.Sprite.prototype);

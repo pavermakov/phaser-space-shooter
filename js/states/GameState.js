@@ -13,7 +13,7 @@ SpaceHipster.GameState = {
     this.load.image('space', 'assets/images/space.png');
     this.load.image('player', 'assets/images/player.png');
     this.load.image('bullet', 'assets/images/bullet.png');
-    this.load.spritesheet('redEnemy', 'assets/images/redEnemySpritesheet.png', 225, 225, 4);
+    this.load.spritesheet('redEnemy', 'assets/images/redEnemySpritesheet.png', 45, 45, 4);
     this.load.image('purpleEnemy', 'assets/images/purpleEnemy.png');
     this.load.image('greenEnemy', 'assets/images/greenEnemy.png');
   },
@@ -24,7 +24,6 @@ SpaceHipster.GameState = {
 
     // player
     this.player = this.game.add.sprite(this.game.world.centerX, this.game.world.height - 25, 'player');
-    this.player.scale.setTo(0.1);
     this.player.anchor.setTo(0.5);
     this.game.physics.arcade.enable(this.player);
     this.player.body.collideWorldBounds = true;
