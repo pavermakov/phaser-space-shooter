@@ -13,9 +13,11 @@ SpaceHipster.GameState = {
     this.load.image('space', 'assets/images/space.png');
     this.load.image('player', 'assets/images/player.png');
     this.load.image('bullet', 'assets/images/bullet.png');
-    this.load.spritesheet('redEnemy', 'assets/images/redEnemySpritesheet.png', 45, 45, 4);
+    this.load.image('enemyParticle', 'assets/images/enemyParticle.png');
     this.load.image('purpleEnemy', 'assets/images/purpleEnemy.png');
     this.load.image('greenEnemy', 'assets/images/greenEnemy.png');
+
+    this.load.spritesheet('redEnemy', 'assets/images/redEnemySpritesheet.png', 45, 45, 4);
   },
 
   create: function() {
@@ -37,6 +39,7 @@ SpaceHipster.GameState = {
 
   update: function() {
     this.game.physics.arcade.overlap(this.playerBullets, this.enemies, this._damageEnemy, null, this);
+    this.game.physics.arcade.collide(this.enemyBullets, this.player, this._killPlayer, null, this);
     this.player.body.velocity.x = 0;
 
     if(this.game.input.activePointer.isDown) {
@@ -51,7 +54,10 @@ SpaceHipster.GameState = {
     this.enemies = this.game.add.group();
     this.enemies.enableBody = true;
 
-    var enemy = new SpaceHipster.Enemy(this.game, 100, 100, 'redEnemy', 10, []);
+    this.enemyBullets = this.game.add.group();
+    this.enemyBullets.enableBody = true;
+
+    var enemy = new SpaceHipster.Enemy(this.game, 100, 100, 'redEnemy', 10, this.enemyBullets);
     this.enemies.add(enemy);
 
     enemy.body.velocity.x = 100;
@@ -82,5 +88,10 @@ SpaceHipster.GameState = {
   _damageEnemy: function(bullet, enemy) {
     enemy.damage(1);
     bullet.kill();
+  },
+
+  _killPlayer: function() {
+    this.player.kill();
+    this.game.state.start('GameState');
   }
 }
