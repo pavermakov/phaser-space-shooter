@@ -2,14 +2,14 @@ var SpaceHipster = SpaceHipster || {};
 
 SpaceHipster.Enemy = function(game, x, y, key, health, enemyBullets) {
   Phaser.Sprite.call(this, game, x, y, key);
+  
   this.game = game;
-
   this.game.physics.arcade.enable(this);
   this.anchor.setTo(0.5);
   this.health = health;
   this.animations.add('damage', [1, 2, 3, 2, 1, 0], 30, false);
   this.enemyBullets = enemyBullets; 
-
+  
   this.enemyTimer = this.game.time.create(false);
   this.enemyTimer.start();
   this.scheduleShooting();  
@@ -53,8 +53,7 @@ SpaceHipster.Enemy.prototype.damage = function(amount) {
 
 SpaceHipster.Enemy.prototype.reset = function(x, y, health, key, scale, speedX, speedY) {
   Phaser.Sprite.prototype.reset.call(this, x, y, health);
-
-  thisloadTexture(key);
+  this.loadTexture(key);
   this.scale.setTo(scale);
   this.body.velocity.x = speedX;
   this.body.velocity.y = speedY;
