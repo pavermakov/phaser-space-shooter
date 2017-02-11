@@ -1,12 +1,15 @@
 var SpaceHipster = SpaceHipster || {};
 
 SpaceHipster.GameState = {
-  init: function () {
+  init: function (currentLevel) {
     this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
     this.PLAYER_SPEED = 200;
     this.BULLET_SPEED = - 500;
+
+    this.currentLevel = currentLevel ? currentLevel : 1;
+    console.log('Current Level: ', this.currentLevel);
   },
 
   preload: function () {
@@ -19,7 +22,10 @@ SpaceHipster.GameState = {
     this.load.spritesheet('greenEnemy', 'assets/images/greenEnemySpritesheet.png', 45, 45, 4);
     this.load.spritesheet('purpleEnemy', 'assets/images/purpleEnemySpritesheet.png', 45, 45, 4);
 
-    this.load.text('level1', 'assets/data/level1.json');
+    this.load.text('levels', 'assets/data/levels.json');
+
+    this.load.audio('blaster', ['assets/audio/blaster.mp3', 'assets/audio/blaster.ogg']);
+    this.load.audio('crash', ['assets/audio/crash.mp3', 'assets/audio/crash.ogg'])
   },
 
   create: function () {
@@ -57,6 +63,7 @@ SpaceHipster.GameState = {
   _initEnemies: function () {
     this.enemies = this.game.add.group();
     this.enemies.enableBody = true;
+    this.enemyCrashSound = this.game.add.audio('crash');
 
     this.enemyBullets = this.game.add.group();
     this.enemyBullets.enableBody = true;
@@ -65,10 +72,11 @@ SpaceHipster.GameState = {
   _initBullets: function () {
     this.playerBullets = this.game.add.group();
     this.playerBullets.enableBody = true;
+    this.playerBulletSound = this.game.add.audio('blaster');
     this.shootingTimer = this.game.time.events.loop(Phaser.Timer.SECOND / 3, this._createPlayerBullet, this);
   },
 
-  _createPlayerBullet: function () {
+  _createPlayerBullet: function() {
     var bullet = this.playerBullets.getFirstExists(false);
 
     if (!bullet) {
@@ -81,10 +89,11 @@ SpaceHipster.GameState = {
 
     // set velocity
     bullet.body.velocity.y = this.BULLET_SPEED;
+    this.playerBulletSound.play();
+    this.playerBulletSound.volume = 0.15;
   },
 
   _createEnemy: function (x, y, health, key, scale, speedX, speedY) {
-    console.log(speedY)
     var enemy = this.enemies.getFirstExists(false);
 
     if (!enemy) {
@@ -98,6 +107,7 @@ SpaceHipster.GameState = {
   _damageEnemy: function (bullet, enemy) {
     enemy.damage(1);
     bullet.kill();
+    this.enemyCrashSound.play();
   },
 
   _killPlayer: function () {
@@ -107,16 +117,27 @@ SpaceHipster.GameState = {
 
   _loadLevel: function () {
     this.currentEnemyIndex = 0;
-    this.levelData = JSON.parse(this.game.cache.getText('level1'));
+    this.levelsData = JSON.parse(this.game.cache.getText('levels'));
+
+    this.endOfLevelTimer = this.game.time.events.add(this.levelsData[this.currentLevel].duration * 1000, function(){
+      console.log('Level Ended!');
+      if(this.currentLevel < this.levelsData.length - 1){
+        this.currentLevel++;
+      } else {
+        this.currentLevel = 1;
+      }
+
+      this.game.state.start('GameState', true, false, this.currentLevel);
+    }, this);
 
     this._scheduleNextEnemy();
   },
 
   _scheduleNextEnemy: function () {
-    var nextEnemy = this.levelData.enemies[this.currentEnemyIndex];
+    var nextEnemy = this.levelsData[this.currentLevel].enemies[this.currentEnemyIndex];
 
     if(nextEnemy) {
-      var nextTime = nextEnemy.time - (this.currentEnemyIndex === 0 ? 0 : this.levelData.enemies[this.currentEnemyIndex - 1].time);
+      var nextTime = nextEnemy.time - (this.currentEnemyIndex === 0 ? 0 : this.levelsData[this.currentLevel].enemies[this.currentEnemyIndex - 1].time);
       nextTime *= 1000;
 
       var x = nextEnemy.x * this.game.world.width;
