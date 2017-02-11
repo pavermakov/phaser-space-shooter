@@ -4,7 +4,7 @@
     {
       "time": 1,
       "x": 0.05,
-      "health": 15,
+      "health": 18,
       "speedX": 30,
       "speedY": 40,
       "key": "greenEnemy",
